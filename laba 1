@@ -1,0 +1,47 @@
+# 2 level task 2 определить наибольшее значение для n, для которого произведение p = 1 * 4 * 7 *...*n не превышает L = 30 000
+p = 1
+n = 1
+while p < 30000:
+    n += 3
+    p *= n
+print(n-3)
+
+#3 level task 1 s = сумма от i=1 до беск ((-1)**i*x**2i)/(2i)!, y = cosx a = 0.1 b = 1, h = 0.1
+from math import cos, factorial
+flag = 0.0001
+for x in range(1, 11):
+    s = 999
+    sum = 0
+    x = x/10
+    print('x =', x)
+    print('cosx =', cos(x))
+    for i in range(200):
+        if abs(s) >= flag:
+            s = ((-1)**i)*(x**(2*i))
+            s /= factorial(2*i)
+            sum += s
+        else:
+            break
+    print('sum =', sum)
+    print()
+
+# 3 level task 4 s = summa от i = 0 до беск (2i+1)x**2i/i!, y = (1+2x**2)e**(x**2), a=0.1, b = 1, h = 0.1
+from math import factorial, e
+flag = 0.0001
+
+for x in range(1, 11):
+    s = 999
+    sum = 0
+    x = x/10
+    print('x =', x)
+    y = (1 + 2*(x**2))*e**(x**2)
+    print('y =', y)
+    for i in range(200):
+        if s > flag:
+            s = (2*i+1)*x**(2*i)
+            s /= factorial(i)
+            sum += s
+        else:
+            break
+    print('sum =', sum)
+    print()
