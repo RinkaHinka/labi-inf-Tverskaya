@@ -1,0 +1,31 @@
+#3.5. Разработать метод определения количества интервалов смены
+# знака функции, заданной таблично на отрезке с постоянным шагом
+# аргумента. Решить задачу для функции y = x**2 – sin x на отрезке [0, 2] c
+# шагом 0,1 и функции y = ex – 1 на отрезке [–1, 1] c шагом 0,2. Для вы-
+# числения очередного значения функции использовать делегат.
+
+from math import exp, sin
+
+def func(values):
+    count = 0
+    if values[0][1] >= 0:
+        znak = '+'
+    else:
+        znak = '-'
+    for x, y in values:
+        if ((znak == '+' and y < 0) or (znak == '-' and y > 0)):
+            count += 1
+            znak = '+' if y >= 0 else '-'
+    return count
+f1 = lambda x: round(x**2 - sin(x), 6)
+f2 = lambda x: round(exp(x) - 1, 6)
+values1 = []
+for x in range(0, 21):
+    x = round(x * 0.1, 1)
+    values1.append([x, f1(x)])
+values2 = []
+for x in range(-5, 6):
+    x = round(x * 0.2, 1)
+    values2.append([x, f2(x)])
+print(func(values1))
+print(func(values2))
