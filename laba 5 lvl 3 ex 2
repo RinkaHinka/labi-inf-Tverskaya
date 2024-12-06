@@ -1,0 +1,32 @@
+# 3.2. В заданной матрице расположить элементы четных строк в по-
+# рядке возрастания, а элементы нечетных строк – в порядке убывания.
+# Обработку матрицы по строкам осуществлять в методе. Для упорядо-
+# чения строки использовать делегат.
+
+class Matrix:
+    def __init__(self, matrix):
+        self.matrix = matrix
+    def sort_vozrastanie(self, index):
+        temp = self.matrix[index]
+        temp.sort()
+        self.matrix[index] = temp
+        return self.matrix
+    def sort_ubivanie(self, index):
+        temp = self.matrix[index]
+        temp.sort(reverse=True)
+        self.matrix[index] = temp
+        return self.matrix
+def process(obj_matrix):
+    for i in range(n):
+        if i % 2 == 0:
+            obj_matrix.sort_vozrastanie(i)
+        else:
+            obj_matrix.sort_ubivanie(i)
+n = 3  # количество строк
+arr = [[1, 4, 3, 2],
+       [7, 12, 0, 1],
+       [15, 8, 9, 6]]
+matrix = Matrix(arr)
+process(matrix)
+for i in range(n):
+    print(*arr[i], sep=' ')
