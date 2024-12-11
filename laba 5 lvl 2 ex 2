@@ -4,35 +4,40 @@
 # симальный элемент расположен дальше от конца массива. Поиск
 # максимального элемента осуществить в методе.
 
-def funcia(A, B):
-    newA = []
-    newB = []
-    q = max(A)
-    p = max(B)
-    indexmaxA = A.index(max(A))
-    indexmaxB = B.index(max(B))
-    counter = 0
-    summa = 0
-    polusum = 0
-    if indexmaxA-2 <= indexmaxB:
-        newA = A[indexmaxA+1:]
-        for i in newA:
-            counter += 1
-            summa += i
-        polusum = summa/counter
-    if indexmaxA-2 > indexmaxB:
-        newB = B[indexmaxB + 1:]
-        for i in newB:
-            counter += 1
-            summa += i
-        polusum = summa / counter
-    for i in range(len(A)):
-        if A[i] == q:
-            A[i] = polusum
-    for i in range(len(B)):
-        if B[i] == p:
-            B[i] = polusum
-    return A, B
-a = [1, 2, 3, 4444, 1, 4, 0, 111, 32]
-b = [212, 322, 444444, 11, 3, 4355, 999]
-print(funcia(a, b))
+def poisk_max_element(matrix):
+    maximum = -99999999999999
+    for i in matrix:
+        if i > maximum:
+            maximum = i
+    return maximum
+
+A = [1, 2, 3, 4444, 1, 4, 0, 111, 32]
+B = [212, 322, 444444, 11, 3, 4355, 999]
+
+maxA = poisk_max_element(A)
+maxB = poisk_max_element(B)
+indexmaxA = A.index(maxA)
+indexmaxB = B.index(maxB)
+counter = 0
+summa = 0
+polusum = 0
+if indexmaxA-2 <= indexmaxB:
+    newA = A[indexmaxA+1:]
+    for i in newA:
+        counter += 1
+        summa += i
+    polusum = summa/counter
+if indexmaxA-2 > indexmaxB:
+    newB = B[indexmaxB + 1:]
+    for i in newB:
+        counter += 1
+        summa += i
+    polusum = summa / counter
+for i in range(len(A)):
+    if A[i] == maxA:
+        A[i] = polusum
+for i in range(len(B)):
+    if B[i] == maxB:
+        B[i] = polusum
+print(A)
+print(B)
