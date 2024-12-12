@@ -27,5 +27,5 @@ values2 = []
 for x in range(-5, 6):
     x = round(x * 0.2, 1)
     values2.append([x, f2(x)])
-print(func(values1))
-print(func(values2))
+print('количество смены знаков для функции y = x**2 – sin x на отрезке [0,2]:',func(values1))
+print('количество смены знаков для функции y = ex – 1 на отрезке [–1, 1]:',func(values2))
