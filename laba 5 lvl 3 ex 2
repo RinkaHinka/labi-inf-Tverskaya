@@ -2,13 +2,23 @@
 # рядке возрастания, а элементы нечетных строк – в порядке убывания.
 # Обработку матрицы по строкам осуществлять в методе. Для упорядо-
 # чения строки использовать делегат.
+def sortirivka(arr):
+    new_arr = []
+    while (arr != []):
+        new_arr.append(min(arr))
+        for i in range(len(arr)):
+            if arr[i] == min(arr):
+                arr.pop(i)  # удаление по индексу
+                break
+    return new_arr
+
 
 class Matrix:
     def __init__(self, matrix):
         self.matrix = matrix
     def sort_vozrastanie(self, index):
         temp = self.matrix[index]
-        temp.sort()
+        temp = sortirivka(temp)
         self.matrix[index] = temp
         return self.matrix
     def sort_ubivanie(self, index):
