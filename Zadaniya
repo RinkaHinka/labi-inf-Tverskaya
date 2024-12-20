@@ -1,0 +1,11 @@
+# программа для выдачи заданий
+
+from random import randint, seed
+seed(3122)
+print('task 1:', randint(1, 33))
+print('task 2:', randint(1, 28))
+print('task 3:', randint(1, 6))
+
+# task 1: 32
+# task 2: 6
+# task 3: 2
