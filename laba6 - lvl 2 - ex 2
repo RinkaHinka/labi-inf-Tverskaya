@@ -1,0 +1,50 @@
+# 2. Группа учащихся подготовительного отделения сдает выпуск-
+# ные экзамены по трем предметам (математика, физика, русский язык).
+# Учащийся, получивший «2», сразу отчисляется. Вывести список уча-
+# щихся, успешно сдавших экзамены, в порядке убывания полученного
+# ими среднего балла по результатам трех экзаменов.
+
+def sotrirovka(spisok_spiskov):
+    new_spisok = []
+    for k in range(len(spisok_spiskov)):
+        sr = 0
+        for i in spisok_spiskov:
+            if i[4] > sr:
+                sr = i[4]
+        ind = -1
+        for j in spisok_spiskov:
+            ind += 1
+            if sr == j[4]:
+                new_spisok.append(j)
+                spisok_spiskov.pop(ind)
+    return new_spisok
+
+class Sessiya:
+    def __init__(self):
+        self.group = []
+
+    def add_student(self, name, math, phis, rus):
+        self.group.append([name, math, phis, rus, (math + phis + rus) / 3])
+
+    def get_spisok(self):
+        ne_otchislili = []
+        for i in range(len(self.group)):
+            if (self.group[i][1] != 2 and self.group[i][2] != 2 and self.group[i][3] != 2):
+                ne_otchislili.append(self.group[i])
+        ne_otchislili = sotrirovka(ne_otchislili)
+        print("Успешно сдали экзамены студенты:")
+        for i in range(len(ne_otchislili)):
+            print(f"{i+1})", ne_otchislili[i][0], f"(средний балл {round(ne_otchislili[i][4], 2)})")
+
+
+session = Sessiya()
+
+#НАЧАЛЬНЫЙ СПИСОК СТУДЕНТОВ
+session.add_student('Masha', 5, 5, 5)
+session.add_student('Vasya', 4, 2, 3)
+session.add_student('Anna', 4, 3, 3)
+session.add_student('Rita', 3, 5, 5)
+session.add_student('Nick', 2, 2, 2)
+session.add_student('Vanya', 5, 5, 2)
+
+session.get_spisok()
