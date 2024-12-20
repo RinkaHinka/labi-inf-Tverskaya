@@ -1,0 +1,25 @@
+# 32. В матрице А размером 5 × 7 в каждой строке заменить макси-
+# мальный элемент средним арифметическим среди положительных элементов строки.
+# 5 строк 7 столбцов
+
+#matrix A
+A = [[-11, 0, 13, 6, 5, 12, -1],
+     [100, 0, 132, 65, 57, 112, -1],
+     [101, 110, 99, 98, 97, 96, 95],
+     [-11, 0, -13, 6, 5, 12, -1],
+     [-11, 0, 13, 6, 5, 12, -1]]
+print('НАЧАЛЬНАЯ МАТРИЦА:', *A, sep='\n')
+stroka = 0
+for i in A:
+    maximum_v_stroke = max(i)
+    index_maximum = i.index(maximum_v_stroke)
+    polozit_chisla = []
+    for j in i:
+        if j > 0 :
+            polozit_chisla.append(j)
+    summa_polozit = sum(polozit_chisla)
+    #округление среднего арифметического до двух знаков
+    srednee_arifmeticheskoe = round(summa_polozit/len(polozit_chisla), 2)
+    A[stroka][index_maximum] = srednee_arifmeticheskoe
+    stroka += 1
+print('КОНЕЧНАЯ МАТРИЦА:',*A, sep='\n')
