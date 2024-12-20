@@ -3,55 +3,38 @@
 # группы по 12 команд. Для проведения второго этапа выбирается
 # 6 лучших команд каждой группы по результатам первого этапа. Со-
 # ставить список команд участников второго этапа.
+from random import randint
 
 class Football:
-    def __int__(self):
+    def __init__(self):
         self.group1 = []
         self.group2 = []
-        
+
     def add_team_group1(self, team, ochki):
-        self.group1.append(team, ochki)
-        
+        self.group1.append([team, ochki])
+
     def add_team_group2(self, team2, ochki2):
-        self.group2.append(team2, ochki2)
-    
+        self.group2.append([team2, ochki2])
+
     def get_teams_for_2_stage(self):
         self.group1.sort(key=lambda x: x[1], reverse=True)
         self.group2.sort(key=lambda x: x[1], reverse=True)
         print('Из 1 группы прошли:')
         for i in range(6):
-            print(f' {i+1}. Команда №{self.group1[i][0]}, очки: {self.group1[i][1]}')
+            print(f'{i + 1}. Команда №{self.group1[i][0]}, очки: {self.group1[i][1]}')
         print('Из 2 группы прошли:')
         for i in range(6):
-            print(f' {i + 1}. Команда №{self.group2[i][0]}, очки: {self.group2[i][1]}')
-        
+            print(f'{i + 1}. Команда №{self.group2[i][0]}, очки: {self.group2[i][1]}')
 
-
-
-#Group 1
-team1_1 = 1, 0
-team1_2 = 2, 4
-team1_3 = 3, 3
-team1_4 = 4, 7
-team1_5 = 5, 6
-team1_6 = 6, 9
-team1_7 = 7, 10
-team1_8 = 8, 10
-team1_9 = 9, 1
-team1_10 = 10, 0
-team1_11 = 11, 3
-team1_12 = 12, 5
-
-#Group 2
-team2_1 = 1, 10
-team2_2 = 2, 5
-team2_3 = 3, 6
-team2_4 = 4, 1
-team2_5 = 5, 10
-team2_6 = 6, 9
-team2_7 = 7, 4
-team2_8 = 8, 1
-team2_9 = 9, 7
-team2_10 = 10, 1
-team2_11 = 11, 8
-team2_12 = 12, 3
+match = Football()
+print('Команды первой группы изначально:')
+for i in range(12):
+    a = randint(1, 20)
+    match.add_team_group1(i+1, a)
+    print(f'Команда №{i+1}, очки: {a}')
+print('Команды второй группы изначально:')
+for i in range(12):
+    a = randint(1, 20)
+    match.add_team_group2(i+1, a)
+    print(f'Команда №{i + 1}, очки: {a}')
+match.get_teams_for_2_stage()
