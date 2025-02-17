@@ -1,0 +1,32 @@
+#Для хранения текста в сжатом виде найти часто повторяющиеся последовательности из двух букв и заменить их кодом. в качестве кода использовать символы, не встречающиеся в тексте. составить также таблицу кодов
+
+s = 'bbaakjhkljhljdsaaljfhnalhlkhaalfhldhflaalfndlkmnlkaalfdjnlfkdnaabb'
+print(s)
+symbols = '1234567890qwertyuiopasdfghjklzxcvbnm!№%?*-+/'
+arr = []
+used1 = []
+for i in range(len(s) - 1):
+    s1 = s[i] + s[i+1]
+    if s1 not in used1:
+        arr.append([s1, 1])
+        used1.append(s1)
+    else:
+        for j in range(len(arr)):
+            if arr[j][0] == s1:
+                arr[j][1] += 1
+
+print(s)
+print('--Table--')
+used2 = []
+for text, num in arr:
+    if num >= 3:
+        key = ''
+        for i in range(len(symbols)):
+            if (symbols[i] not in s) and (symbols[i] not in used2):
+                key = symbols[i]
+                used2.append(key)
+                break
+        s = s.replace(text, key)
+        print(f"|{key} -> {text}|")
+print('---------')
+print(s)
