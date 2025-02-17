@@ -1,0 +1,12 @@
+#Минимальный элемент заданного одномерного массива увели-
+#чить в 2 раза прим: fileout - пустой файл
+with open('ex1.txt', 'r') as f, open('fileout.txt', 'w') as f1:
+    arr = f.read().strip().split('\n')
+    arr = list(map(int, arr))
+    minn = min(arr)
+    for i in range(len(arr)):
+        if arr[i] == minn:
+            arr[i] *= 2
+    for i in range(len(arr)):
+        f1.write(str(arr[i]))
+        f1.write('\n')
