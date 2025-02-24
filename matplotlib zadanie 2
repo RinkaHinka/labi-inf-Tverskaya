@@ -1,0 +1,15 @@
+# построить график по точкам из файла
+
+import matplotlib.pyplot as plt
+
+with open('data.txt', 'r') as file:
+    lines = file.readlines()
+    x_values = list(map(float, lines[0].split()[1:]))
+    y_values = list(map(float, lines[1].split()[1:]))
+
+plt.plot(x_values, y_values, marker='o')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('График по дискретным значениям')
+plt.grid(True)
+plt.show()
