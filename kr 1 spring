@@ -1,0 +1,76 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+
+def generate_data(pointsCount1, pointsCount2, xMin1, xMax1, yMin1, yMax1, xMin2, xMax2, yMin2, yMax2):
+    class0_x = np.random.uniform(xMin1, xMax1, pointsCount1)
+    class0_y = np.random.uniform(yMin1, yMax1, pointsCount1)
+    class0 = np.column_stack((class0_x, class0_y))
+
+    class1_x = np.random.uniform(xMin2, xMax2, pointsCount2)
+    class1_y = np.random.uniform(yMin2, yMax2, pointsCount2)
+    class1 = np.column_stack((class1_x, class1_y))
+
+    X = np.vstack((class0, class1))
+    y = np.array([0] * pointsCount1 + [1] * pointsCount2)
+
+    return X, y
+
+
+def plot_results(X_train, y_train, X_test, y_test, y_pred):
+    plt.figure(figsize=(10, 6))
+
+    plt.scatter(X_train[y_train == 0][:, 0], X_train[y_train == 0][:, 1],
+                c='blue', marker='o', label='Class 0 (Train)')
+
+    plt.scatter(X_train[y_train == 1][:, 0], X_train[y_train == 1][:, 1],
+                c='blue', marker='x', label='Class 1 (Train)')
+
+    correct_class0 = (y_test == 0) & (y_test == y_pred)
+    plt.scatter(X_test[correct_class0][:, 0], X_test[correct_class0][:, 1],
+                c='green', marker='o', label='Class 0 (Correct)')
+
+    correct_class1 = (y_test == 1) & (y_test == y_pred)
+    plt.scatter(X_test[correct_class1][:, 0], X_test[correct_class1][:, 1],
+                c='green', marker='x', label='Class 1 (Correct)')
+
+
+    wrong_class0 = (y_test == 0) & (y_test != y_pred)
+    plt.scatter(X_test[wrong_class0][:, 0], X_test[wrong_class0][:, 1],
+                c='red', marker='o', label='Class 0 (Wrong)')
+
+
+    wrong_class1 = (y_test == 1) & (y_test != y_pred)
+    plt.scatter(X_test[wrong_class1][:, 0], X_test[wrong_class1][:, 1],
+                c='red', marker='x', label='Class 1 (Wrong)')
+
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('K-Nearest Neighbors Classification')
+    plt.grid(True)
+    plt.show()
+
+
+pointsCount1 = 50
+pointsCount2 = 50
+xMin1, xMax1, yMin1, yMax1 = 0, 5, 0, 5
+xMin2, xMax2, yMin2, yMax2 = 5, 10, 5, 10
+k = 3
+test_size = 0.2
+
+X, y = generate_data(pointsCount1, pointsCount2, xMin1, xMax1, yMin1, yMax1, xMin2, xMax2, yMin2, yMax2)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+knn = KNeighborsClassifier(n_neighbors=k)
+knn.fit(X_train, y_train)
+
+y_pred = knn.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.2f}')
+
+plot_results(X_train, y_train, X_test, y_test, y_pred)
