@@ -1,0 +1,59 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def f(x):
+    return np.sin(x) + 0.1 * x ** 2
+def df(x):
+    return np.cos(x) + 0.2 * x
+minimum_approx = -1.0
+def gradientDescend(func=f, diffFunc=df, x0=3.0, speed=0.01, epochs=100):
+    xlist = []
+    ylist = []
+    x = x0
+
+    for _ in range(epochs):
+        xlist.append(x)
+        ylist.append(func(x))
+        x = x - speed * diffFunc(x)
+
+    return xlist, ylist
+
+xlist, ylist = gradientDescend()
+
+x_vals = np.linspace(-5, 5, 400)
+y_vals = f(x_vals)
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, y_vals, label='Функция: sin(x) + 0.1x²', color='blue')
+plt.scatter(xlist, ylist, color='red', label='Точки градиентного спуска')
+plt.scatter([minimum_approx], [f(minimum_approx)], color='green', marker='*', s=200, label='Истинный минимум')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+plt.title('Метод градиентного спуска')
+plt.legend()
+plt.grid(True)
+plt.show()
+final_x = xlist[-1]
+print(f"Начальное значение x0: 3.0")
+print(f"Финальное значение x: {final_x:.4f}")
+print(f"Значение в минимуме: {minimum_approx:.4f}")
+print(f"Разница: {abs(final_x - minimum_approx):.4f}")
+
+if abs(final_x - minimum_approx) < 0.1:
+    print("Вывод: метод сошелся к искомому минимуму")
+else:
+    print("Вывод: метод не сошелся к искомому минимуму")
+def find_critical_speed(func=f, diffFunc=df, x0=3.0, epochs=100, tol=0.1):
+    low = 0.0
+    high = 1.0
+    for _ in range(100):
+        mid = (low + high) / 2
+        xlist, _ = gradientDescend(speed=mid, epochs=epochs)
+        final_x = xlist[-1]
+
+        if abs(final_x - minimum_approx) < tol:
+            low = mid
+        else:
+            high = mid
+    return (low + high) / 2
+critical_speed = find_critical_speed()
+print(f"\nГраничное значение скорости обучения: {critical_speed:.4f}")
