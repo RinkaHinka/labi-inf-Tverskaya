@@ -1,0 +1,87 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs, make_moons, make_circles
+from sklearn.cluster import AffinityPropagation, KMeans
+from sklearn.cluster import BisectingKMeans
+from sklearn.preprocessing import StandardScaler
+
+
+
+def generate_noisy_circles():
+    X, _ = make_circles(n_samples=300, factor=0.5, noise=0.05)
+    return X
+def generate_noisy_moons():
+    X, _ = make_moons(n_samples=300, noise=0.05)
+    return X
+def generate_blobs():
+    X, _ = make_blobs(n_samples=300, centers=3, cluster_std=1.0)
+    return X
+def generate_no_structure():
+    return np.random.rand(300, 2)
+def generate_anisotropic():
+    X, _ = make_blobs(n_samples=300, centers=3, cluster_std=0.5)
+    transformation = [[0.6, -0.6], [-0.4, 0.8]]
+    X = np.dot(X, transformation)
+    return X
+def generate_varied_variances():
+    X, _ = make_blobs(n_samples=300, centers=3, cluster_std=[1.0, 2.5, 0.5])
+    return X
+def affinity_propagation_clustering(X):
+    X_scaled = StandardScaler().fit_transform(X)
+    clustering = AffinityPropagation(damping=0.75, preference=-50).fit(X_scaled)
+    return clustering.labels_
+def kmeans_clustering(X):
+    clustering = KMeans(n_clusters=3, random_state=42).fit(X)
+    return clustering.labels_
+def bisecting_kmeans_clustering(X):
+    clustering = BisectingKMeans(n_clusters=3, random_state=42).fit(X)
+    return clustering.labels_
+datasets = [
+    ("Noisy Circles", generate_noisy_circles()),
+    ("Noisy Moons", generate_noisy_moons()),
+    ("Blobs", generate_blobs()),
+    ("No Structure", generate_no_structure()),
+    ("Anisotropic", generate_anisotropic()),
+    ("Varied Variances", generate_varied_variances())
+]
+algorithms = [
+    ("Affinity Propagation", affinity_propagation_clustering),
+    ("K-Means", kmeans_clustering),
+    ("Bisecting K-Means", bisecting_kmeans_clustering)
+]
+plt.figure(figsize=(18, 12))
+plt.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9, hspace=0.3, wspace=0.1)
+for i, (dataset_name, X) in enumerate(datasets):
+    for j, (alg_name, algorithm) in enumerate(algorithms):
+        plt.subplot(len(datasets), len(algorithms), i * len(algorithms) + j + 1)
+        if i == 0:
+            plt.title(alg_name, size=12)
+
+        try:
+            labels = algorithm(X)
+            plt.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis', s=10)
+        except Exception as e:
+            plt.scatter(X[:, 0], X[:, 1], c='black', s=10)
+            plt.text(0.5, 0.5, f"Error: {str(e)}", ha='center', va='center')
+
+        if j == 0:
+            plt.ylabel(dataset_name, size=12)
+plt.suptitle("Сравнение алгоритмов кластеризации", fontsize=16)
+plt.show()
+print("\nАнализ результатов:")
+print("1. Affinity Propagation:")
+print("Автоматически определяет количество кластеров")
+print("Чувствителен к параметрам damping и preference")
+print("\n2. K-Means:")
+print("Хорошо работает с изотропными кластерами одинакового размера")
+print("Требует указания количества кластеров")
+print("\n3. Bisecting K-Means:")
+print("Иерархическая версия K-Means, часто дает лучшие результаты")
+print("Менее чувствителен к начальной инициализации")
+print("Может быть полезен для документных кластеров")
+print("\nВыводы:")
+print("Все три алгоритма лучше всего работают на данных типа 'Blobs'")
+print("K-Means и Bisecting K-Means показывают схожие результаты")
+print("Affinity Propagation часто выделяет слишком много кластеров")
+print("Ни один алгоритм не справился с кластерами сложной формы (круги, луны)")
+print("На данных без структуры все алгоритмы дают произвольные результаты")
