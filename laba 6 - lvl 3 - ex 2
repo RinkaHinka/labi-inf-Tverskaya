@@ -1,0 +1,55 @@
+# 2. Соревнования по футболу между командами проводятся в два
+# этапа. Для проведения первого этапа участники разбиваются на две
+# группы по 12 команд. Для проведения второго этапа выбирается
+# 6 лучших команд каждой группы по результатам первого этапа. Со-
+# ставить список команд участников второго этапа.
+from random import randint
+
+def sotrirovka(spisok_spiskov):
+    new_spisok = []
+    for k in range(len(spisok_spiskov)):
+        sr = 0
+        for i in spisok_spiskov:
+            if i[1] > sr:
+                sr = i[1]
+        ind = -1
+        for j in spisok_spiskov:
+            ind += 1
+            if sr == j[1]:
+                new_spisok.append(j)
+                spisok_spiskov.pop(ind)
+    return new_spisok
+
+class Football:
+    def __init__(self):
+        self.group1 = []
+        self.group2 = []
+
+    def add_team_group1(self, team, ochki):
+        self.group1.append([team, ochki])
+
+    def add_team_group2(self, team2, ochki2):
+        self.group2.append([team2, ochki2])
+
+    def get_teams_for_2_stage(self):
+        self.group1 = sotrirovka(self.group1)
+        self.group2 = sotrirovka(self.group2)
+        print('Из 1 группы прошли:')
+        for i in range(6):
+            print(f'{i + 1}. Команда №{self.group1[i][0]}, очки: {self.group1[i][1]}')
+        print('Из 2 группы прошли:')
+        for i in range(6):
+            print(f'{i + 1}. Команда №{self.group2[i][0]}, очки: {self.group2[i][1]}')
+
+match = Football()
+print('Команды первой группы изначально:')
+for i in range(12):
+    a = randint(1, 20)
+    match.add_team_group1(i+1, a)
+    print(f'Команда №{i+1}, очки: {a}')
+print('Команды второй группы изначально:')
+for i in range(12):
+    a = randint(1, 20)
+    match.add_team_group2(i+1, a)
+    print(f'Команда №{i + 1}, очки: {a}')
+match.get_teams_for_2_stage()
