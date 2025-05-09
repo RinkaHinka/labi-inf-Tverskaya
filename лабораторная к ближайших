@@ -1,0 +1,107 @@
+import random
+import math
+import matplotlib.pyplot as plt
+
+k = 3
+classesCount = 2
+pointsCount1 = 50
+pointsCount2 = 50
+
+xMin1, xMax1 = 0, 5
+yMin1, yMax1 = 0, 5
+
+xMin2, xMax2 = 6, 10
+yMin2, yMax2 = 6, 10
+
+x = []
+y = []
+
+for _ in range(pointsCount1):
+    x_coord = random.uniform(xMin1, xMax1)
+    y_coord = random.uniform(yMin1, yMax1)
+    x.append([x_coord, y_coord])
+    y.append(0)
+
+for _ in range(pointsCount2):
+    x_coord = random.uniform(xMin2, xMax2)
+    y_coord = random.uniform(yMin2, yMax2)
+    x.append([x_coord, y_coord])
+    y.append(1)
+
+
+
+def train_test_split(x, y, p=0.8):
+    data = list(zip(x, y))
+    random.shuffle(data)
+    split_index = int(len(data) * p)
+    train_data = data[:split_index]
+    test_data = data[split_index:]
+    x_train, y_train = zip(*train_data)
+    x_test, y_test = zip(*test_data)
+    return list(x_train), list(x_test), list(y_train), list(y_test)
+
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, p=0.8)
+
+def euclidean_distance(point1, point2):
+    return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+
+def fit(x_train, y_train, x_test, k=k):
+    y_predict = []
+    for test_point in x_test:
+        distances = [euclidean_distance(test_point, train_point) for train_point in x_train]
+        k_indices = sorted(range(len(distances)), key=lambda i: distances[i])[:k]
+        k_labels = [y_train[i] for i in k_indices]
+        vote = max(set(k_labels), key=lambda label: (k_labels.count(label), -label))
+        y_predict.append(vote)
+    return y_predict
+
+y_predict = fit(x_train, y_train, x_test, k)
+
+def computeAccuracy(y_test, y_predict):
+    correct = sum(1 for yt, yp in zip(y_test, y_predict) if yt == yp)
+    return correct / len(y_test)
+
+
+accuracy = computeAccuracy(y_test, y_predict)
+print("Accuracy:", accuracy)
+
+def visualize(x_train, y_train, x_test, y_test, y_predict):
+    plt.figure(figsize=(10, 8))
+    for point, label in zip(x_train, y_train):
+        if label == 0:
+            plt.scatter(point[0], point[1], color='blue', marker='o',
+                        label='Train class 0' if 'Train class 0' not in plt.gca().get_legend_handles_labels()[
+                            1] else "")
+        else:
+            plt.scatter(point[0], point[1], color='blue', marker='x', s=100,
+                        label='Train class 1' if 'Train class 1' not in plt.gca().get_legend_handles_labels()[
+                            1] else "")
+
+    for point, true_label, pred_label in zip(x_test, y_test, y_predict):
+        if true_label == pred_label:
+            if true_label == 0:
+                plt.scatter(point[0], point[1], color='green', marker='o', s=100,
+                            label='Test correct class 0' if 'Test correct class 0' not in
+                                                            plt.gca().get_legend_handles_labels()[1] else "")
+            else:
+                plt.scatter(point[0], point[1], color='green', marker='x', s=150,
+                            label='Test correct class 1' if 'Test correct class 1' not in
+                                                            plt.gca().get_legend_handles_labels()[1] else "")
+        else:
+            if true_label == 0:
+                plt.scatter(point[0], point[1], color='red', marker='o', s=100,
+                            label='Test misclassified class 0' if 'Test misclassified class 0' not in
+                                                                  plt.gca().get_legend_handles_labels()[1] else "")
+            else:
+                plt.scatter(point[0], point[1], color='red', marker='x', s=150,
+                            label='Test misclassified class 1' if 'Test misclassified class 1' not in
+                                                                  plt.gca().get_legend_handles_labels()[1] else "")
+
+    plt.title(f'k-Nearest Neighbors Classification (k={k}), Accuracy: {accuracy:.2f}')
+    plt.xlabel('X координата')
+    plt.ylabel('Y координата')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+visualize(x_train, y_train, x_test, y_test, y_predict)
