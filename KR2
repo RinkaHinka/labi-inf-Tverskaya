@@ -1,0 +1,110 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import SGDRegressor
+from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.preprocessing import StandardScaler
+from ipywidgets import interact, IntSlider
+import pandas as pd
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
+
+# Часть 1
+def generate_data():
+    np.random.seed(42)
+    x = np.linspace(0, 5, 100)
+    y = 2 * x + 3 * np.sin(1.5 * x)
+    noise = np.random.normal(0, 1, len(x))
+    y_noisy = y + noise
+
+    data = pd.DataFrame({'x': x, 'y': y, 'y_noisy': y_noisy})
+    data.to_csv('regression_data.csv', index=False)
+    return x, y, y_noisy
+
+
+x, y_true, y_noisy = generate_data()
+
+
+# Часть 2
+def train_sgd_model(x, y, n_epochs=100, learning_rate=0.01):
+    X = x.reshape(-1, 1)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model = SGDRegressor(
+        learning_rate='constant',
+        eta0=learning_rate,
+        max_iter=1000,
+        warm_start=True,
+        random_state=42,
+        tol=1e-3
+    )
+
+    mape_scores = []
+    for epoch in range(n_epochs):
+        model.fit(X_scaled, y)
+        y_pred = model.predict(X_scaled)
+        mape = mean_absolute_percentage_error(y_true, y_pred)
+        mape_scores.append(mape)
+
+    return model, mape_scores
+
+
+model, mape_history = train_sgd_model(x, y_noisy, n_epochs=100)
+
+
+
+
+# Часть 3
+# График зависимости MAPE от эпохи
+plt.figure(figsize=(10, 5))
+plt.plot(range(1, 101), mape_history, label='MAPE')
+plt.xlabel('Эпоха')
+plt.ylabel('MAPE')
+plt.title('Зависимость MAPE от эпохи обучения')
+plt.legend()
+plt.grid()
+plt.show()
+def update_plot(epoch):
+    X = x.reshape(-1, 1)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    temp_model = SGDRegressor(
+        learning_rate='constant',
+        eta0=0.01,
+        max_iter=1000,
+        warm_start=True,
+        random_state=42,
+        tol=1e-3
+    )
+
+    for _ in range(epoch):
+        temp_model.fit(X_scaled, y_noisy)
+
+    y_pred = temp_model.predict(X_scaled)
+
+    plt.figure(figsize=(10, 5))
+    plt.scatter(x, y_noisy, label='Зашумленные данные', alpha=0.5)
+    plt.plot(x, y_true, label='Истинная функция', color='green')
+    plt.plot(x, y_pred, label='Предсказание модели', color='red')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Аппроксимация функциональной зависимости')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
+update_plot(100)
+interact(
+    update_plot,
+    epoch=IntSlider(
+        min=1,
+        max=100,
+        step=1,
+        value=1,
+        description='Количество эпох:',
+        continuous_update=False
+    )
+)
