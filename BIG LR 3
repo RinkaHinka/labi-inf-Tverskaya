@@ -2,112 +2,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
-
-def generate_data(a, b, c, x_min=1, x_max=10, points=50):
-    x = np.linspace(x_min, x_max, points)
-    noise = np.random.uniform(-3, 3, size=points)
-    y = a * np.power(x, b) + c + noise
-    return x, y
-
-
-def mse(x, y, a, b, c):
-    y_pred = a * np.power(x, b) + c
-    return np.mean((y_pred - y) ** 2)
-
-
+def exp_func(x, a, b, c):
+    return a * (b ** x) + c
+np.random.seed(207)
+x = np.linspace(0, 5, 50)
+true_a, true_b, true_c = 2.0, 1.5, 1.0
+y = exp_func(x, true_a, true_b, true_c) + np.random.uniform(-1, 1, len(x))
 def get_da(x, y, a, b, c):
-    y_pred = a * np.power(x, b) + c
-    return (2 / len(x)) * np.sum(np.power(x, b) * (y_pred - y))
-
-
+    return -2 * sum((b ** x) * (y - exp_func(x, a, b, c)))
 def get_db(x, y, a, b, c):
-    y_pred = a * np.power(x, b) + c
-    return (2 / len(x)) * np.sum(a * np.power(x, b) * np.log(x) * (y_pred - y))
-
-
+    return -2 * sum(a * x * (b ** (x - 1)) * (y - exp_func(x, a, b, c)))
 def get_dc(x, y, a, b, c):
-    y_pred = a * np.power(x, b) + c
-    return (2 / len(x)) * np.sum(y_pred - y)
-
-
-def fit(x, y, speed, epochs, a0=1.0, b0=1.0, c0=0.0):
-    a, b, c = a0, b0, c0
-    a_history, b_history, c_history, mse_history = [a], [b], [c], [mse(x, y, a, b, c)]
-
-    for _ in range(epochs):
-        da = get_da(x, y, a, b, c)
-        db = get_db(x, y, a, b, c)
-        dc = get_dc(x, y, a, b, c)
-
-        a -= speed * da
-        b -= speed * db
-        c -= speed * dc
-
-        a_history.append(a)
-        b_history.append(b)
-        c_history.append(c)
-        mse_history.append(mse(x, y, a, b, c))
-
-    return a_history, b_history, c_history, mse_history
-
-
-def interactive_plot(x, y, a_history, b_history, c_history, mse_history):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-    plt.subplots_adjust(bottom=0.25)
-
-    epoch = 0
-    a = a_history[epoch]
-    b = b_history[epoch]
-    c = c_history[epoch]
-
-    sc = ax1.scatter(x, y, color='blue')
-    x_plot = np.linspace(min(x), max(x), 100)
-    line, = ax1.plot(x_plot, a * np.power(x_plot, b) + c, 'r-')
-    ax1.set_xlabel('x')
-    ax1.set_ylabel('y')
-    ax1.grid(True)
-
-    mse_line, = ax2.plot(mse_history, 'g-')
-    ax2.set_xlabel('Эпоха')
-    ax2.set_ylabel('MSE')
-    ax2.grid(True)
-
-    ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
-    slider = Slider(ax_slider, 'Эпоха', 0, len(a_history) - 1, valinit=0, valstep=1)
-
-    def update(val):
-        epoch = int(slider.val)
-        a = a_history[epoch]
-        b = b_history[epoch]
-        c = c_history[epoch]
-
-        line.set_ydata(a * np.power(x_plot, b) + c)
-        mse_line.set_data(range(epoch + 1), mse_history[:epoch + 1])
-        ax2.relim()
-        ax2.autoscale_view()
-        fig.canvas.draw_idle()
-
-    slider.on_changed(update)
-    plt.show()
-
-
-def main():
-    true_a, true_b, true_c = 2.5, 1.7, 3.0
-    x, y = generate_data(true_a, true_b, true_c)
-
-    learning_rate = 0.0001
-    epochs = 500
-    initial_a, initial_b, initial_c = 1.0, 1.0, 0.0
-
-    a_history, b_history, c_history, mse_history = fit(x, y, learning_rate, epochs, initial_a, initial_b, initial_c)
-
-    final_a, final_b, final_c = a_history[-1], b_history[-1], c_history[-1]
-    print(f"Истинные параметры: a={true_a}, b={true_b}, c={true_c}")
-    print(f"Найденные параметры: a={final_a:.2f}, b={final_b:.2f}, c={final_c:.2f}")
-    print(f"Финальная MSE: {mse_history[-1]:.2f}")
-
-    interactive_plot(x, y, a_history, b_history, c_history, mse_history)
-
-
-if __name__ == "__main__":
-    main()
+    return -2 * sum(y - exp_func(x, a, b, c))
+a, b, c = 1.0, 1.1, 0.0
+speed = 0.00001
+epochs = 2000
+a_history = [a]
+b_history = [b]
+c_history = [c]
+for _ in range(epochs):
+    da = get_da(x, y, a, b, c)
+    db = get_db(x, y, a, b, c)
+    dc = get_dc(x, y, a, b, c)
+    a -= speed * da
+    b -= speed * db
+    c -= speed * dc
+    a_history.append(a)
+    b_history.append(b)
+    c_history.append(c)
+fig, ax = plt.subplots(figsize=(10, 6))
+plt.subplots_adjust(bottom=0.25)
+ax.scatter(x, y, color='blue', label='Данные')
+line, = ax.plot(x, exp_func(x, a_history[0], b_history[0], c_history[0]),
+                'r-', linewidth=2, label='Регрессия')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_title('Показательная регрессия: y = a*bˣ + c')
+ax.grid(True)
+ax.legend()
+ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
+slider = Slider(ax_slider, 'Итерация', 0, epochs, valinit=0, valstep=1)
+def update(val):
+    epoch = int(slider.val)
+    line.set_ydata(exp_func(x, a_history[epoch], b_history[epoch], c_history[epoch]))
+    fig.canvas.draw_idle()
+slider.on_changed(update)
+plt.show()
+print(f"Найденные параметры: a = {a:.3f}, b = {b:.3f}, c = {c:.3f}")
+print(f"Истинные параметры: a = {true_a}, b = {true_b}, c = {true_c}")
