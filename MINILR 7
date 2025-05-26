@@ -1,91 +1,60 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import Adam
 
-def generate_datasets():
-    n_samples = 500
-    seed = 30
-    random_state = 170
-    noisy_circles = datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05, random_state=seed)
-    noisy_moons = datasets.make_moons(n_samples=n_samples, noise=0.05, random_state=seed)
-    cluster_std = [1.0, 0.5]
-    varied = datasets.make_blobs(n_samples=n_samples, cluster_std=cluster_std, random_state=seed, centers=2)
-    blobs = datasets.make_blobs(n_samples=n_samples, random_state=random_state, centers=2)
-    transformation = [[0.6, -0.6], [-0.4, 0.8]]
-    x_aniso = np.dot(blobs[0], transformation)
-    aniso = (x_aniso, blobs[1])
-    blobs_weak = datasets.make_blobs(n_samples=n_samples, random_state=seed, centers=2, cluster_std=0.3)
-    return [noisy_circles, noisy_moons, varied, aniso, blobs_weak]
+n_samples = 500
+seed = 30
+random_state = 170
+x, y = datasets.make_blobs(n_samples=n_samples, random_state=random_state, centers=2)
+transformation = [[0.6, -0.6], [-0.4, 0.8]]
+x_aniso = np.dot(x, transformation)
+aniso = (x_aniso, y)
+dataset = [
+    datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05, random_state=seed),
+    datasets.make_moons(n_samples=n_samples, noise=0.05, random_state=seed),
+    datasets.make_blobs(n_samples=n_samples, cluster_std=[1.0, 0.5], random_state=seed, centers=2),
+    aniso,
+    datasets.make_blobs(n_samples=n_samples, random_state=seed, centers=2)
+]
+models = [
+    ('KNeighbors', KNeighborsClassifier(n_neighbors=3)),
+    ('Decision Tree', DecisionTreeClassifier(max_depth=3)),
+    ('SVM', SVC(kernel='rbf', gamma=1))
+]
+plt.figure(figsize=(12, 12))
 
-def create_models():
-    knn = KNeighborsClassifier(n_neighbors=3)
-    svm = SVC(kernel='rbf', C=1.0)
-    mlp = Sequential([
-        Dense(64, activation='relu', input_shape=(2,)),
-        Dense(32, activation='relu'),
-        Dense(1, activation='sigmoid')
-    ])
-    mlp.compile(optimizer=Adam(0.001),
-                loss='binary_crossentropy',
-                metrics=['accuracy'])
-    return {'KNN': knn, 'SVM': svm, 'MLP': mlp}
-
-
-def plot_results(datasets, results):
-    plt.figure(figsize=(15, 20))
-
-    for i, (name, (X, y)) in enumerate(datasets.items()):
-        for j, (model_name, (xx, yy, Z, train_acc, test_acc)) in enumerate(results[name].items()):
-            plt.subplot(5, 3, i * 3 + j + 1)
-            plt.contourf(xx, yy, Z, alpha=0.3, cmap='bwr')
-            plt.scatter(X[0][:, 0], X[0][:, 1], c=y[0], cmap='bwr', alpha=0.6, edgecolors='k')
-            plt.scatter(X[1][:, 0], X[1][:, 1], c=y[1], cmap='bwr', alpha=1.0, edgecolors='k', marker='x')
-            plt.title(f"{name}\n{model_name}\nTrain: {train_acc:.2f}, Test: {test_acc:.2f}")
-            plt.xlim(xx.min(), xx.max())
-            plt.ylim(yy.min(), yy.max())
-    plt.tight_layout()
-    plt.show()
-
-def main():
-    datasets_list = generate_datasets()
-    dataset_names = ['Circles', 'Moons', 'Varied', 'Aniso', 'Weak Blobs']
-    datasets_dict = {name: data for name, data in zip(dataset_names, datasets_list)}
-    models = create_models()
-    results = {}
-    for name, (X, y) in datasets_dict.items():
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        temp_x = np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 100)
-        temp_y = np.linspace(X[:, 1].min() - 1, X[:, 1].max() + 1, 100)
+for model_idx, (model_name, model) in enumerate(models, 1):
+    for dataset_idx in range(5):
+        pos = dataset_idx * len(models) + model_idx
+        x, y = dataset[dataset_idx]
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+        model.fit(x_train, y_train)
+        y_pred = model.predict(x_test)
+        temp_x = np.linspace(x[:, 0].min() - 1, x[:, 0].max() + 1, 100)
+        temp_y = np.linspace(x[:, 1].min() - 1, x[:, 1].max() + 1, 100)
         xx, yy = np.meshgrid(temp_x, temp_y)
-        dataset_results = {}
-        for model_name, model in models.items():
-            if model_name == 'MLP':
-                model.fit(X_train, y_train, epochs=50, batch_size=32, verbose=0)
-                Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-                Z = (Z > 0.5).astype(int).reshape(xx.shape)
-                y_train_pred = (model.predict(X_train) > 0.5).astype(int).flatten()
-                y_test_pred = (model.predict(X_test) > 0.5).astype(int).flatten()
-            else:
-                model.fit(X_train, y_train)
-                Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-                Z = Z.reshape(xx.shape)
-                y_train_pred = model.predict(X_train)
-                y_test_pred = model.predict(X_test)
-            train_acc = accuracy_score(y_train, y_train_pred)
-            test_acc = accuracy_score(y_test, y_test_pred)
-            dataset_results[model_name] = (
-                (X_train, X_test),
-                (y_train, y_test),
-                (xx, yy, Z, train_acc, test_acc)
-            )
-        results[name] = dataset_results
-    plot_results(datasets_dict, results)
-if __name__ == "__main__":
-    main()
+        Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z = Z.reshape(xx.shape)
+        plt.subplot(5, 3, pos)
+        plt.contourf(xx, yy, Z, alpha=0.3, cmap='bwr')
+        for i in range(len(x_train)):
+            plt.scatter(x_train[i, 0], x_train[i, 1],
+                        marker=['x', 'o'][y_train[i]],
+                        c='blue',
+                        alpha=0.7)
+        for i in range(len(x_test)):
+            color = 'green' if y_test[i] == y_pred[i] else 'red'
+            plt.scatter(x_test[i, 0], x_test[i, 1],
+                        marker=['x', 'o'][y_test[i]],
+                        c=color)
+        if dataset_idx == 0:
+            plt.title(model_name, fontsize=14, pad=12, color='navy')
+
+
+plt.tight_layout()
+plt.subplots_adjust(top=0.95)
+plt.show()
